@@ -10,7 +10,7 @@ Summary
 Files
 - `dump.sql` - schema and small lookup inserts.
 - `src/seed.js` - Bun script that batches inserts using `pg` and `@faker-js/faker` with a fixed seed for reproducibility.
-- `.env.example` - example DATABASE_URL.
+- `.env.example` and `env.example` - example DATABASE_URL files (copy one to `.env` or set `DATABASE_URL` in your environment).
 
 Prerequisites
 - PostgreSQL 15+ (tested on 15/16). Ensure you have a database and user.
@@ -38,6 +38,31 @@ $env:DATABASE_URL = 'postgres://postgres:postgres@localhost:5432/ecommerce'
 bun install
 bun run src/seed.js
 ```
+
+Docker
+------
+
+There's a simple Docker setup to run Postgres and the Bun seeder together.
+
+1. Build and start services:
+
+```powershell
+docker-compose up --build -d
+```
+
+2. Run the seeder (container will have Bun installed via the image):
+
+```powershell
+docker-compose run --rm seeder
+```
+
+3. Tear down when done:
+
+```powershell
+docker-compose down -v
+```
+
+The `seeder` service uses the `DATABASE_URL` env var pointed at the `db` service.
 
 Notes on the design
 - Schema: `customers`, `products`, `orders`, `order_items` are non-lookup and contain realistic fields.
@@ -76,3 +101,4 @@ Expected result
 Follow-ups and tips
 - For very large loads, run the seed script on the same machine as the DB to avoid network latency.
 - Consider using COPY FROM STDIN for fastest ingestion if you can stream CSV batches.
+

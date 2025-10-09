@@ -34,10 +34,10 @@ async function run() {
     let idx = 1;
     for (let i = 0; i < batch; i++) {
       const sku = `SKU-${offset + i + 1}`;
-      const name = faker.commerce.productName();
-      const desc = faker.commerce.productDescription();
-      const price = faker.commerce.price(5, 2000, 2);
-      const currency_id = faker.datatype.number({ min: 1, max: 2 });
+  const name = faker.commerce.productName();
+  const desc = faker.commerce.productDescription();
+  const price = faker.commerce.price(5, 2000, 2);
+  const currency_id = faker.number.int({ min: 1, max: 2 });
       params.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
       values.push(sku, name, desc, price, currency_id);
     }
@@ -56,14 +56,14 @@ async function run() {
     const params = [];
     let idx = 1;
     for (let i = 0; i < batch; i++) {
-      const first = faker.name.firstName();
-      const last = faker.name.lastName();
+  const first = faker.person.firstName();
+  const last = faker.person.lastName();
       const email = faker.internet.email(first, last).toLowerCase().replace(/[^a-z0-9@.\-]/g, '');
-      const phone = faker.phone.number();
+  const phone = faker.phone.number();
       const street = faker.location.streetAddress();
       const city = faker.location.city();
       const postal = faker.location.zipCode();
-      const country_id = faker.datatype.number({ min: 1, max: 3 });
+  const country_id = faker.number.int({ min: 1, max: 3 });
       params.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
       values.push(first, last, email, phone, street, city, postal, country_id);
     }
@@ -86,10 +86,10 @@ async function run() {
     const orderParams = [];
     let idx = 1;
     for (let i = 0; i < batch; i++) {
-      const customer_id = faker.datatype.number({ min: 1, max: maxCustomerId });
+  const customer_id = faker.number.int({ min: 1, max: maxCustomerId });
       const order_date = faker.date.past({ years: 3 }).toISOString();
-      const status = faker.datatype.number({ min: 0, max: 4 });
-      const currency_id = faker.datatype.number({ min: 1, max: 2 });
+  const status = faker.number.int({ min: 0, max: 4 });
+  const currency_id = faker.number.int({ min: 1, max: 2 });
       const total_amount = faker.commerce.price(20, 5000, 2);
       orderParams.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
       orderValues.push(customer_id, order_date, status, total_amount, currency_id);
@@ -105,10 +105,10 @@ async function run() {
     let vidx = 1;
     for (let oi = 0; oi < insertedOrderIds.length; oi++) {
       const oid = insertedOrderIds[oi];
-      const items = faker.datatype.number({ min: 1, max: 5 });
+      const items = faker.number.int({ min: 1, max: 5 });
       for (let k = 0; k < items; k++) {
-        const product_id = faker.datatype.number({ min: 1, max: maxProductId });
-        const quantity = faker.datatype.number({ min: 1, max: 10 });
+  const product_id = faker.number.int({ min: 1, max: maxProductId });
+  const quantity = faker.number.int({ min: 1, max: 10 });
         const unit_price = faker.commerce.price(5, 2000, 2);
         itemParams.push(`($${vidx++}, $${vidx++}, $${vidx++}, $${vidx++})`);
         itemValues.push(oid, product_id, quantity, unit_price);

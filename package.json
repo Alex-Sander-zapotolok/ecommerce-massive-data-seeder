@@ -1,0 +1,13 @@
+{
+  "name": "ecommerce-massive-seeder",
+  "version": "1.0.0",
+  "description": "Seed an e-commerce schema with 2M+ rows in non-lookup tables using Bun",
+  "main": "src/seed.js",
+  "scripts": {
+    "seed": "bun run src/seed.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "@faker-js/faker": "^8.0.2"
+  }
+}

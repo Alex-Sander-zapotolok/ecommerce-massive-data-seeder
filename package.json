@@ -5,12 +5,14 @@
   "type": "module",
   "main": "src/seed.js",
   "scripts": {
-    "seed": "bun run src/seed.js",
-    "start": "bun run src/seed.js",
-    "docker-seed": "bun install && bun run src/seed.js"
+  "seed": "bun run src/seed.js",
+  "seed:dev": "cross-env SEED_SCALE=dev bun run src/seed.js",
+  "start": "bun run src/seed.js",
+  "docker-seed": "bun install && bun run src/seed.js"
   },
   "dependencies": {
     "pg": "^8.11.0",
-    "@faker-js/faker": "^8.0.2"
+    "@faker-js/faker": "^8.0.2",
+    "cross-env": "^7.0.3"
   }
 }

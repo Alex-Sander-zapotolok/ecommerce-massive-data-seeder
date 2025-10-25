@@ -101,4 +101,3 @@ Expected result
 Follow-ups and tips
 - For very large loads, run the seed script on the same machine as the DB to avoid network latency.
 - Consider using COPY FROM STDIN for fastest ingestion if you can stream CSV batches.
-

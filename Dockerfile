@@ -1,5 +1,5 @@
 # Dockerfile to run the Bun seeder
-FROM jarredsumner/bun:latest
+FROM oven/bun:latest
 
 WORKDIR /app
 
@@ -13,4 +13,8 @@ RUN bun install --production
 # Copy the rest of the repo
 COPY . .
 
-CMD ["bun", "run", "src/seed.js"]
+# Add a small entrypoint that waits for the DB to be ready before running the seeder
+COPY scripts/wait-and-run.sh /app/wait-and-run.sh
+RUN chmod +x /app/wait-and-run.sh
+
+ENTRYPOINT ["/app/wait-and-run.sh"]

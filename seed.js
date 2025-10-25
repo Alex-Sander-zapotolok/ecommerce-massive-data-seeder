@@ -5,12 +5,35 @@ import { faker } from '@faker-js/faker';
 
 faker.seed(12345);
 
-const BATCH_CUSTOMERS = 20000; // per batch
-const BATCH_PRODUCTS = 20000;
-const BATCH_ORDERS = 20000;
-const TARGET_CUSTOMERS = 2000000; // we'll make customers table the 2M+ table
-const TARGET_PRODUCTS = 200000; // reasonable
-const TARGET_ORDERS = 1000000; // orders fewer than customers
+// Allow overriding targets and batch sizes via env for quick dev testing.
+// Usage: set SEED_SCALE=dev to run with small targets, or set TARGET_CUSTOMERS etc.
+const SEED_SCALE = process.env.SEED_SCALE || process.env.SEED_SCALE_MODE || 'prod';
+
+// Defaults (production)
+let BATCH_CUSTOMERS = 4000; // per batch (safe: 4000 * ~8 params = 32k)
+let BATCH_PRODUCTS = 4000;
+let BATCH_ORDERS = 4000;
+let TARGET_CUSTOMERS = 2000000; // production targets
+let TARGET_PRODUCTS = 200000;
+let TARGET_ORDERS = 1000000;
+
+if (SEED_SCALE === 'dev') {
+  // quick local/dev run
+  BATCH_CUSTOMERS = parseInt(process.env.BATCH_CUSTOMERS || '200', 10);
+  BATCH_PRODUCTS = parseInt(process.env.BATCH_PRODUCTS || '200', 10);
+  BATCH_ORDERS = parseInt(process.env.BATCH_ORDERS || '200', 10);
+  TARGET_CUSTOMERS = parseInt(process.env.TARGET_CUSTOMERS || '1000', 10);
+  TARGET_PRODUCTS = parseInt(process.env.TARGET_PRODUCTS || '200', 10);
+  TARGET_ORDERS = parseInt(process.env.TARGET_ORDERS || '500', 10);
+} else {
+  // allow numeric overrides for prod-scale runs
+  BATCH_CUSTOMERS = parseInt(process.env.BATCH_CUSTOMERS || String(BATCH_CUSTOMERS), 10);
+  BATCH_PRODUCTS = parseInt(process.env.BATCH_PRODUCTS || String(BATCH_PRODUCTS), 10);
+  BATCH_ORDERS = parseInt(process.env.BATCH_ORDERS || String(BATCH_ORDERS), 10);
+  TARGET_CUSTOMERS = parseInt(process.env.TARGET_CUSTOMERS || String(TARGET_CUSTOMERS), 10);
+  TARGET_PRODUCTS = parseInt(process.env.TARGET_PRODUCTS || String(TARGET_PRODUCTS), 10);
+  TARGET_ORDERS = parseInt(process.env.TARGET_ORDERS || String(TARGET_ORDERS), 10);
+}
 
 const poolConfig = {
   connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/ecommerce'
@@ -19,6 +42,9 @@ const poolConfig = {
 async function run() {
   const client = new Client(poolConfig);
   await client.connect();
+
+  // Set search path to ecommerce schema (dump.sql creates objects in ecommerce schema)
+  await client.query('SET search_path = ecommerce');
 
   console.log('Connected to DB');
 
@@ -36,7 +62,7 @@ async function run() {
       const sku = `SKU-${offset + i + 1}`;
   const name = faker.commerce.productName();
   const desc = faker.commerce.productDescription();
-  const price = faker.commerce.price(5, 2000, 2);
+  const price = faker.commerce.price({ min: 5, max: 2000, dec: 2 });
   const currency_id = faker.number.int({ min: 1, max: 2 });
       params.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
       values.push(sku, name, desc, price, currency_id);
@@ -58,7 +84,7 @@ async function run() {
     for (let i = 0; i < batch; i++) {
   const first = faker.person.firstName();
   const last = faker.person.lastName();
-      const email = faker.internet.email(first, last).toLowerCase().replace(/[^a-z0-9@.\-]/g, '');
+  const email = `customer${offset + i + 1}@example.com`;
   const phone = faker.phone.number();
       const street = faker.location.streetAddress();
       const city = faker.location.city();
@@ -90,7 +116,7 @@ async function run() {
       const order_date = faker.date.past({ years: 3 }).toISOString();
   const status = faker.number.int({ min: 0, max: 4 });
   const currency_id = faker.number.int({ min: 1, max: 2 });
-      const total_amount = faker.commerce.price(20, 5000, 2);
+  const total_amount = faker.commerce.price({ min: 20, max: 5000, dec: 2 });
       orderParams.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
       orderValues.push(customer_id, order_date, status, total_amount, currency_id);
     }
@@ -109,7 +135,7 @@ async function run() {
       for (let k = 0; k < items; k++) {
   const product_id = faker.number.int({ min: 1, max: maxProductId });
   const quantity = faker.number.int({ min: 1, max: 10 });
-        const unit_price = faker.commerce.price(5, 2000, 2);
+  const unit_price = faker.commerce.price({ min: 5, max: 2000, dec: 2 });
         itemParams.push(`($${vidx++}, $${vidx++}, $${vidx++}, $${vidx++})`);
         itemValues.push(oid, product_id, quantity, unit_price);
       }
